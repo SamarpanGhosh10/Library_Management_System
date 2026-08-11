@@ -1,42 +1,77 @@
-# Library Management System
+# 📚 Library Management System
 
-A **desktop-based Library Management System** developed using **Python** and **Tkinter** that provides a simple and user-friendly interface for managing a collection of books. The application is designed to perform essential library operations such as adding new books, searching for existing records, issuing books to users, returning issued books, restocking inventory, and deleting outdated records. All book information is stored in a **CSV file**, making the system lightweight, portable, and easy to maintain without requiring a database.
+A desktop-based Library Management System built with Python and Tkinter.
 
-This project was developed as a **high school computer science project** to explore the fundamentals of software development with Python. It demonstrates the practical application of programming concepts such as object-oriented programming, file handling, data management, and graphical user interface (GUI) development. The project focuses on creating an intuitive experience where users can perform common library management tasks efficiently through a clean desktop interface.
+This project was originally developed as a high-school project to practice Python, GUI development, file handling, and CRUD operations.
 
 ## Features
 
-* Add new books with relevant details.
-* Search for books using available information.
-* Issue books and automatically update their availability.
-* Return issued books and restore them to the library inventory.
-* Restock books by increasing the available quantity.
-* Delete book records that are no longer needed.
-* Store and retrieve all data using a CSV file, eliminating the need for a database.
-* Simple and intuitive graphical interface built with Tkinter.
+* Add books
+* Search books by title
+* Issue books
+* Return books
+* Restock books
+* Delete book records
+* Track available quantity
+* Persistent data storage using CSV
+* Input validation and error handling
 
-## Technologies Used
+## Tech Stack
 
 * Python
 * Tkinter
-* CSV Module
-* File Handling
+* CSV
+* File handling
 
-## Learning Objectives
+## Project Structure
 
-This project was created to strengthen the understanding of:
+```text
+Library_Management_System/
+├── LBS.py
+├── .gitignore
+└── README.md
+```
 
-* Python programming fundamentals
-* GUI application development using Tkinter
-* File handling and CSV data management
-* Basic CRUD (Create, Read, Update, Delete) operations
-* Event-driven programming
-* Problem-solving and application design
+## How to Run
 
-## Project Highlights
+### 1. Clone the repository
 
-Unlike database-driven library systems, this application relies on CSV files for data storage, making it lightweight and easy to run on almost any computer with Python installed. The project emphasizes simplicity, readability, and maintainability, making it an excellent learning resource for beginners who want to understand how desktop applications interact with stored data.
+```bash
+git clone https://github.com/SamarpanGhosh10/Library_Management_System.git
+```
 
-Although developed as a high school project, the application demonstrates the complete workflow of a basic library management system and serves as a solid foundation for future enhancements, such as integrating an SQL database, implementing user authentication, adding due-date tracking and fines, generating reports, or developing a web-based version.
+### 2. Open the project
 
-Overall, this project showcases practical Python programming skills by combining GUI development, data persistence, and real-world problem solving into a single desktop application.
+```bash
+cd Library_Management_System
+```
+
+### 3. Run the application
+
+```bash
+python LBS.py
+```
+
+## What I Learned
+
+* Building a GUI with Tkinter
+* Reading and writing CSV files
+* Implementing CRUD operations
+* Handling user input
+* Managing application state
+* Separating application logic into functions
+* Handling file-related errors
+
+## Future Improvements
+
+* Replace CSV storage with SQLite/PostgreSQL
+* Add user authentication
+* Add due dates and fines
+* Improve the GUI
+* Add book categories
+* Add transaction history
+* Separate the GUI and business logic into different modules
+
+## Status
+
+Completed as a learning project. Future improvements may be implemented as I continue learning software development.
