@@ -45,20 +45,47 @@ def add_book():
     author = book_author.get().strip()
     qty = book_qty.get().strip()
 
-    if not (bid and title and author and qty.isdigit()):
-        messagebox.showerror("Error", "Please enter valid details (Quantity must be a number).")
+    if not bid:
+        messagebox.showerror("Error", "Please enter a Book ID.")
         return
 
-    # Prevent duplicate Book IDs
-    existing = read_books()
-    if any(row[0] == bid for row in existing):
-        messagebox.showerror("Error", f"Book ID '{bid}' already exists. Use a unique ID.")
+    # Quantity is optional for existing books (defaults to 1 copy)
+    if qty and (not qty.isdigit() or int(qty) <= 0):
+        messagebox.showerror("Error", "Quantity must be a positive number.")
         return
 
-    existing.append([bid, title, author, qty])
-    write_books(existing)
+    books = read_books()
 
-    messagebox.showinfo("Success", "Book added successfully!")
+    # Case 1: Book ID already exists -> just add copies
+    for row in books:
+        if row[0] == bid:
+            # If a title was typed, make sure it matches the existing book
+            if title and title.lower() != row[1].lower():
+                messagebox.showerror(
+                    "Error",
+                    f"Book ID '{bid}' belongs to '{row[1]}'. "
+                    "Clear the Title field or use a different ID."
+                )
+                return
+            copies = int(qty) if qty else 1
+            row[3] = str(int(row[3]) + copies)
+            write_books(books)
+            messagebox.showinfo("Success", f"Book already exists. Added {copies} copy/copies.")
+            clear_entries()
+            display_books()
+            return
+
+    # Case 2: New book -> all details required
+    if not (title and author and qty):
+        messagebox.showerror(
+            "Error",
+            "This is a new Book ID. Please enter Title, Author and Quantity."
+        )
+        return
+
+    books.append([bid, title, author, qty])
+    write_books(books)
+    messagebox.showinfo("Success", "New book added successfully!")
     clear_entries()
     display_books()
 
@@ -80,18 +107,26 @@ def display_books():
 
 def search_book():
     key = search_entry.get().strip().lower()
-    text_box.delete("1.0", tk.END)
     if not key:
-        messagebox.showinfo("Info", "Enter a title to search.")
+        messagebox.showinfo("Info", "Enter a Book ID, title or author to search.")
         return
-    books = read_books()
-    found = False
-    for row in books:
-        if key in row[1].lower():
-            text_box.insert(tk.END, f"Found: ID:{row[0]}  Title:{row[1]}  Author:{row[2]}  Qty:{row[3]}\n")
-            found = True
-    if not found:
+
+    # Match against ID, title and author (partial, case-insensitive)
+    results = [
+        row for row in read_books()
+        if key in row[0].lower() or key in row[1].lower() or key in row[2].lower()
+    ]
+
+    text_box.delete("1.0", tk.END)
+    if not results:
         text_box.insert(tk.END, "Book not found.\n")
+        return
+
+    header = f"{'ID':<10}{'Title':<25}{'Author':<20}{'Qty':<5}\n"
+    text_box.insert(tk.END, header)
+    text_box.insert(tk.END, "-" * 60 + "\n")
+    for row in results:
+        text_box.insert(tk.END, f"{row[0]:<10}{row[1]:<25}{row[2]:<20}{row[3]:<5}\n")
 
 
 def restock_book():
@@ -134,17 +169,31 @@ def return_book():
 
 def update_quantity(change, action):
     bid = book_id.get().strip()
+    amount_text = book_qty.get().strip()
+
     if not bid:
         messagebox.showerror("Error", "Enter Book ID in the Book ID box (left).")
         return
+
+    # Quantity box = how many copies to issue/return (defaults to 1 if empty)
+    if amount_text:
+        if not amount_text.isdigit() or int(amount_text) <= 0:
+            messagebox.showerror("Error", "Quantity must be a positive number.")
+            return
+        amount = int(amount_text)
+    else:
+        amount = 1
 
     books = read_books()
     updated = False
     for row in books:
         if row[0] == bid:
-            qty = int(row[3]) + change
+            qty = int(row[3]) + change * amount
             if qty < 0:
-                messagebox.showerror("Error", "Book not available to issue (quantity is 0).")
+                messagebox.showerror(
+                    "Error",
+                    f"Only {row[3]} copy/copies available. Cannot issue {amount}."
+                )
                 return
             row[3] = str(qty)
             updated = True
@@ -155,7 +204,8 @@ def update_quantity(change, action):
         return
 
     write_books(books)
-    messagebox.showinfo("Success", f"Book {action} successfully!")
+    messagebox.showinfo("Success", f"{amount} book(s) {action} successfully!")
+    clear_entries()
     display_books()
 
 
@@ -215,6 +265,7 @@ tk.Button(root, text="Delete Book", command=delete_book, width=12).grid(row=5, c
 tk.Label(root, text="Search Title", bg="#e3f2fd").grid(row=4, column=0, padx=6, pady=10, sticky="w")
 search_entry = tk.Entry(root)
 search_entry.grid(row=4, column=1, padx=6)
+search_entry.bind("<Return>", lambda event: search_book())
 tk.Button(root, text="Search", command=search_book, width=12).grid(row=5, column=0, padx=6, pady=4, sticky="w")
 
 # Text area with monospace font (fixes column misalignment) + scrollbar
@@ -225,7 +276,7 @@ scrollbar = tk.Scrollbar(text_frame)
 scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 text_box = tk.Text(text_frame, width=75, height=18, font=("Courier New", 10),
-                    yscrollcommand=scrollbar.set)
+                   yscrollcommand=scrollbar.set)
 text_box.pack(side=tk.LEFT, fill=tk.BOTH)
 scrollbar.config(command=text_box.yview)
 
